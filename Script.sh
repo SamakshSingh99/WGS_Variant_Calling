@@ -206,6 +206,7 @@ for dir in "$parent_directory"/*/aligned/results; do
             -O "$dir"/"$base_name"_raw_snps.vcf
 
         # Select INDELs
+
         gatk SelectVariants \
             -R "$Ref_Gen" \
             -V "$file" \
@@ -213,6 +214,7 @@ for dir in "$parent_directory"/*/aligned/results; do
             -O "$dir"/"$base_name"_raw_indels.vcf
 
         # Check if output files are generated
+
         ls "$dir"
     done
 done
@@ -222,11 +224,16 @@ done
 # Step 6 ~ SNPs Filtering #
 ###########################
 
-# Loop through directories matching the pattern P*/aligned/results #
-for dir in ${parent_directory}/P*/aligned/results; do
+# Loop through directories matching the pattern */aligned/results #
+
+for dir in ${parent_directory}/*/aligned/results; do
+
     # Loop through each file matching P*_raw_snps.vcf inside the current directory #
+
     for file in "${dir}"/P*_raw_snps.vcf; do
+
         # Run VariantFiltration
+
         gatk VariantFiltration \
             -R "${Ref_Gen}" \
             -V "${file}" \
@@ -243,36 +250,44 @@ for dir in ${parent_directory}/P*/aligned/results; do
             -genotype-filter-name "GQ_filter"
 
         # Select Variants that PASS filters
+
         gatk SelectVariants \
             --exclude-filtered \
             -V "${dir}/$(basename ${file%_raw_snps.vcf})_filtered_snps.vcf" \
             -O "${dir}/$(basename ${file%_raw_snps.vcf})_analysis_snps.vcf"
 
         # Exclude variants that failed genotype filters
+
         cat "${dir}/$(basename ${file%_raw_snps.vcf})_analysis_snps.vcf" | grep -v -E "DP_filter|GQ_filter" > "${dir}/$(basename ${file%_raw_snps.vcf})_final_snps.vcf"
     done
 done
 
-# Here P*_final_snps.vcf will be used for further annotation and analysis #
+# Here *_final_snps.vcf will be used for further annotation and analysis #
 
 
 #########################################
 # Step 7 ~ Annotating the SNPs VCF file #
 #########################################
 
-ref="/home/samaksh/Work/Ref_Genome/hg38.fa"
-main="/home/samaksh/SamakshServerMount/RawData"
+ref="/set/path/to/Ref_Genome/hg38.fa"
+main="/path/to/WGS/RawData"
 
 for dir in "${main}"/*/aligned; do
+
     # Extract the sample name from the directory path
+
     sample_name=$(basename "$(dirname "${dir}")")
 
     # Loop through each VCF file inside the results directory
+
     for snp in "${dir}"/results/*_final_snps.vcf; do
+
         # Construct the correct BAM file path
+
         bam_file="${dir}/${sample_name}_sorted_dedup_bqsr_reads.bam"
 
         # Run VariantAnnotator
+
         gatk VariantAnnotator \
             -R "${ref}" \
             -I "${bam_file}" \
