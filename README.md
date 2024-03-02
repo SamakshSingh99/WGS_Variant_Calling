@@ -6,6 +6,7 @@ __So as to run this script, following tools are used:__
 * bwa/0.7.12
 * gatk/4.1.9.0
 
+![Blank diagram (3)](https://github.com/SamakshSingh99/WGS_Variant_Calling/assets/130667983/552dd3b3-62ab-4cbf-96ff-54a9e2bac5b7)
 
 
  
